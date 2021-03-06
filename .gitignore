@@ -218,3 +218,9 @@ fabric.properties
 .history/
 .idea
 .vscode
+
+# geekshop --->
+
+tmp
+
+# <--- geekshop
