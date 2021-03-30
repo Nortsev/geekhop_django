@@ -6,15 +6,14 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.views.generic.detail import DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
+
 from basketapp.models import Basket
 from ordersapp.forms import OrderItemForm
 from ordersapp.models import Order, OrderItem
 from mainapp.models import Product
 from django.http import JsonResponse
 
-
-class OrderList(LoginRequiredMixin, ListView):
+class OrderList(ListView):
     model = Order
 
     def get_queryset(self):
@@ -46,6 +45,7 @@ class OrderItemsCreate(CreateView):
 
         data["orderitems"] = formset
         return data
+
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -84,12 +84,10 @@ class OrderItemsUpdate(UpdateView):
     def get_context_data(self, **kwargs):
         data = super(OrderItemsUpdate, self).get_context_data(**kwargs)
         OrderFormSet = inlineformset_factory(Order, OrderItem, form=OrderItemForm, extra=1)
-
         if self.request.POST:
             data["orderitems"] = OrderFormSet(self.request.POST, instance=self.object)
         else:
-            queryset = self.object.orderitems.select_related()
-            formset = OrderFormSet(instance=self.object, queryset=queryset)
+            formset = OrderFormSet(instance=self.object)
             for form in formset.forms:
                 if form.instance.pk:
                     form.initial["price"] = form.instance.product.price
